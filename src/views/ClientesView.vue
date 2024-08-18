@@ -5,17 +5,20 @@
     // import axios from "axios"
     // import axios from "../lib/axios" // v209
     import ClienteService from "../services/clienteService" // v210
-
-    // import {RouterLink} from "vue-router"
+    
+    import {/* RouterLink,  */useRouter} from "vue-router"
     import RouterLink from "../components/UI/RouterLink.vue"
     import Heading from "../components/UI/Heading.vue"
     import Cliente from "../components/Cliente.vue"
 
+    const router = useRouter()
+    
     defineProps({
         titulo: {
             type: String,
         }
     })
+
     const clientes = ref([]) // state
 
     // axios con promises
@@ -29,6 +32,34 @@
     const existenClientes = computed( () => {
         return clientes.value.length > 0
     })
+
+    const actualizarEstado= ({id, estado}) => { // v219
+        // console.log("Actualizando...", id, estado);
+        
+        // defino el nuevo estado del cliente a updatear en base al estado anterior
+        const nuevoEstado = estado ? 0 : 1 
+
+        // update del valor estado del cliente cliente clickeado
+        ClienteService.cambiarEstado(id, {estado: nuevoEstado})
+            .then(() => {
+                // bloque para actualizar en tiempo real en la pantalla, el nuevo estado del cliente updateado 
+                // 1. para eso primero identifico en el state clientes al cliente updateado luego de la llamada a la API
+                const i = clientes.value.findIndex(cliente => cliente.id === id)
+                // 2. una vez identificado, modifico el valor de estado del cliente updateado con el nuevo valor 
+                clientes.value[i].estado = nuevoEstado
+                // fin bloque
+            })
+            .catch(error => console.log(error)) 
+    }
+
+    const eliminarCliente= ( id ) => { // v220
+        ClienteService.eliminarCliente(id)
+            .then(() => {
+                clientes.value = clientes.value.filter( cliente => cliente.id !== id);
+            })
+            .catch(error => console.log(error)) 
+    }
+
 </script>
 <template>
     <div>
@@ -61,6 +92,8 @@
                                 v-for="cliente in clientes"
                                 :key="cliente.id"
                                 :cliente="cliente"
+                                @actualizar-estado="actualizarEstado"
+                                @eliminar-cliente="eliminarCliente"
                             />
                         </tbody>
                     </table>

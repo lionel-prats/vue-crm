@@ -19,10 +19,7 @@
         }
     })
 
-    const formData = reactive({
-        nombre: "Juan",
-        apellido: "Valdez",
-    })
+    const formData = reactive({})
 
     const handleSubmit = (data) => {
         data.estado = 1

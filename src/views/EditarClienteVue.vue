@@ -9,14 +9,18 @@
 
     const router = useRouter()
     const route = useRoute()
-    const{ id } = route.params
+    
+    // id = parametro dinamico recibido por parametro en la URL (http://localhost:5173/editar-cliente/2)
+    // el nombre del parametro lo definimos en src\router\index.js 
+    // en este caso, en en src\router\index.js, lo definimos como -> path: '/editar-cliente/:id' (ver archivo)
+    const{ id } = route.params 
 
     const formData = reactive({})
 
     // axios con promises
     onMounted(() => {
         ClienteService.obtenerCLiente(id)
-            .then(({data}) => Object.assign(formData, data))
+            .then(({data}) => Object.assign(formData, data)) // cargo el state formData con la respuesta de la API (v217)
             .catch(error => console.log(error))  
     })
 
@@ -26,7 +30,13 @@
         }
     })
 
-    const handleSubmit = (data) => {
+    const handleSubmit = (data) => { // v218
+        // data.estado = formData.estado
+        ClienteService.actualizarCLiente(id, data)
+            .then((/* respuesta */) => {
+                router.push({name: 'listado-clientes'})
+            })
+            .catch(error => console.log(error))  
     }
 
 </script>
@@ -41,7 +51,7 @@
         <div class="mx-auto md:w-2/3 py-20 px-6">
             <FormKit
                 type="form"
-                submit-label="Agregar Cliente"
+                submit-label="Guardar Cambios"
                 incomplete-message="No se pudo enviar, revisa los mensajes"
                 @submit="handleSubmit"
             >   
