@@ -1,17 +1,24 @@
 <script setup>
+    import {onMounted, reactive} from "vue"
 
-    import {reactive} from "vue"
     import {FormKit} from "@formkit/vue"
-    import {useRouter} from "vue-router" // hook de "vue-router" (v206)
-    
-    // import axios from "axios"
-    // import axios from "../lib/axios" // v209
-    import ClienteService from "../services/clienteService" // v210
-    
+    import {useRouter, useRoute} from "vue-router"
+    import ClienteService from "../services/clienteService"
     import RouterLink from "../components/UI/RouterLink.vue"
     import Heading from "../components/UI/Heading.vue"
 
     const router = useRouter()
+    const route = useRoute()
+    const{ id } = route.params
+
+    const formData = reactive({})
+
+    // axios con promises
+    onMounted(() => {
+        ClienteService.obtenerCLiente(id)
+            .then(({data}) => Object.assign(formData, data))
+            .catch(error => console.log(error))  
+    })
 
     defineProps({
         titulo: {
@@ -19,18 +26,7 @@
         }
     })
 
-    const formData = reactive({
-        nombre: "Juan",
-        apellido: "Valdez",
-    })
-
     const handleSubmit = (data) => {
-        data.estado = 1
-        ClienteService.agregarCLiente(data)
-            .then((respuesta) => {
-                router.push({name: 'listado-clientes'}) // redirecciono al usuario luego de creado el cliente con el hook useRouter de "vue-router" (v206)
-            })
-            .catch(error => console.log(error))  
     }
 
 </script>
@@ -48,27 +44,17 @@
                 submit-label="Agregar Cliente"
                 incomplete-message="No se pudo enviar, revisa los mensajes"
                 @submit="handleSubmit"
-                :value="formData"
-            >
-            <!-- con el prop :actions="false" eliminamos el <button type="submit"> que genera por default FormKit -->
-            <!-- con el prop submit-label="..." customizamos el nombre del <button type="submit"> el form que genera FormKit por default -->
-            <!-- con el prop incomplete-message="..." customizamos el mensaje de error que se renderiza con el submit del form si existió error de validación en alguno de los campos -->
-            <!-- con :value="formData" mapeamos el value de los distintos elementos del form con la data del objeto formData creado por nosotros (calculo que esto es util para autocompletar un formulario de edicion de lo que sea) (v199) -->
-                
-            <FormKit 
+            >   
+            <!-- :value="formData" -->
+                <FormKit 
                     type="text"
                     label="Nombre"
                     name="nombre"
                     placeholder="Nombre de Cliente"
                     validation="required"
                     :validation-messages="{required: 'El nombre del cliente es obligatorio'}"
+                    v-model="formData.nombre"
                 />
-                <!-- help="Coloca el Nombre del Cliente que deseas registrar" -->
-                <!-- validation-visibility="blur" -->
-                <!-- validation-visibility="live" -->
-                <!-- validation-visibility="submit" -->
-                <!-- prefix-icon="add" -->
-
                 <FormKit 
                     type="text"
                     label="Apellido"
@@ -76,8 +62,8 @@
                     placeholder="Apellido de Cliente"
                     validation="required"
                     :validation-messages="{required: 'El apellido del cliente es obligatorio'}"
+                    v-model="formData.apellido"
                 />
-                
                 <FormKit 
                     type="email"
                     label="Email"
@@ -88,9 +74,8 @@
                         required: 'El email del cliente es obligatorio',
                         email: 'Coloca un email válido',
                     }"
+                    v-model="formData.email"
                 />
-                
-                <!-- en este caso, al ser opcional la carga del teléfono, no le aplicamos al input la regla required -->
                 <FormKit 
                     type="text"
                     label="Teléfono (opcional)"
@@ -101,33 +86,23 @@
                     :validation-messages="{
                         matches: 'El formato no es válido'
                     }"
+                    v-model="formData.telefono"
                 />
-                <!-- "*", "+" y "?" se conocen como rules hidden -->
-                <!-- validation="*matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/" -->
-                <!-- validation="+matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/" -->
-                <!-- validation="?matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/" -->
-
                 <FormKit 
                     type="text"
                     label="Empresa (opcional)"
                     name="empresa"
                     placeholder="Empresa de Cliente"
+                    v-model="formData.empresa"
                 />
-
                 <FormKit 
                     type="text"
                     label="Puesto (opcional)"
                     name="puesto"
                     placeholder="Puesto de Cliente"
+                    v-model="formData.puesto"
                 />
-                
-                <!-- 
-                <FormKit 
-                    type="submit"
-                    label="Agregar Cliente"
-                /> 
-                -->
-            </FormKit>
+                </FormKit>
         </div>
     </div>
 </template>

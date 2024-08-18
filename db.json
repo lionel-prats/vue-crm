@@ -1,0 +1,24 @@
+{
+  "clientes": [
+    {
+      "nombre": "Lionel",
+      "apellido": "Prats",
+      "email": "lionel.prats.c@gmail.com",
+      "telefono": "112-404-9995",
+      "empresa": "CECAITRA",
+      "puesto": "Programador",
+      "estado": 1,
+      "id": 1
+    },
+    {
+      "nombre": "Tomás",
+      "apellido": "Wagner",
+      "email": "tomy@gmail.com",
+      "telefono": "257-001-6494",
+      "empresa": "CECAITRA",
+      "puesto": "Programador",
+      "estado": 0,
+      "id": 2
+    }
+  ]
+}
